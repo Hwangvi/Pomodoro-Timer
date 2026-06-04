@@ -1,56 +1,73 @@
-import { useState, useEffect } from 'react'; 
+import { useState } from 'react';
 import { Header } from './components/Header';
-import { TimerDisplay } from './components/TimerDisplay'; 
+import { TimerDisplay } from './components/TimerDisplay';
 import { CharacterPet } from './components/CharacterPet';
-import { MikuPet } from './components/mikuPet'; 
+import { MikuPet } from './components/mikuPet';
 import { TaskList } from './components/TaskList';
+import { SettingsModal } from './components/SettingsModal';
+import { Footer } from './components/Footer';
+
+export type Theme = 'CUTE' | 'VERANO' | 'BUNNY' | 'DARK' | 'MIKU';
 
 export default function App() {
-  const [isCuteMode, setIsCuteMode] = useState(true);
+  const [theme, setTheme] = useState<Theme>('CUTE');
   const [isActive, setIsActive] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [times, setTimes] = useState({ pomodoro: 25, shortBreak: 5, longBreak: 15 });
 
-  useEffect(() => {
-    const stopImages = [
-      '/bunnyStop/stop_bunny_1.png',
-      '/bunnyStop/stop_bunny_2.png',
-      '/bunnyStop/stop_bunny_3.png'
-    ];
-
-    stopImages.forEach((src) => {
-      const img = new Image();
-      img.src = src;
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const order: Theme[] = ['CUTE', 'VERANO', 'BUNNY', 'DARK', 'MIKU'];
+      const currentIndex = order.indexOf(prev);
+      return order[(currentIndex + 1) % order.length];
     });
-  }, []); 
+  };
 
-  const toggleTheme = () => setIsCuteMode(!isCuteMode);
+  const getBgColor = () => {
+    switch (theme) {
+      case 'CUTE': return 'bg-pink-100';
+      case 'VERANO': return 'bg-orange-50';
+      case 'BUNNY': return 'bg-stone-100';
+      case 'DARK': return 'bg-gray-900';
+      case 'MIKU': return 'bg-teal-50';
+      default: return 'bg-pink-100';
+    }
+  };
 
   return (
-    <div className={`flex flex-col min-h-screen transition-colors duration-500 ${isCuteMode ? 'bg-pink-100' : 'bg-orange-50'}`}>
-      <Header toggleTheme={toggleTheme} isCuteMode={isCuteMode} />
+    <div className={`flex flex-col min-h-screen transition-colors duration-500 ${getBgColor()}`}>
+      <Header toggleTheme={toggleTheme} theme={theme} />
       
-      <main className="grow flex flex-row w-full pt-16 px-4 items-start">
-        
-        <div className="flex-1 flex justify-center mt-24 pb-8">
+      <main className="grow flex flex-col lg:flex-row w-full pt-8 px-4 items-center lg:items-start justify-center gap-8 pb-12">
+        <div className="flex justify-center mt-25">
           <MikuPet isActive={isActive} />
         </div>
 
-        <div className="flex-2 flex flex-col items-center">
+        <div className="flex flex-col items-center w-full max-w-2xl">
           <TimerDisplay 
-            isCuteMode={isCuteMode} 
+            key={`${times.pomodoro}-${times.shortBreak}-${times.longBreak}`}
+            theme={theme} 
             isActive={isActive} 
-            setIsActive={setIsActive} 
+            setIsActive={setIsActive}
+            times={times}
+            onOpenSettings={() => setIsSettingsOpen(true)}
           />
-          <CharacterPet 
-            isCuteMode={isCuteMode} 
-            isActive={isActive} 
-          />
+          <CharacterPet theme={theme} isActive={isActive} />
         </div>
 
-        <div className="flex-1">
-          <TaskList isCuteMode={isCuteMode} />
+        <div className="w-full max-w-sm mt-12">
+          <TaskList theme={theme} />
         </div>
         
+        <SettingsModal 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+          times={times} 
+          setTimes={setTimes}
+          theme={theme}
+        />
       </main>
+      <Footer theme={theme} />
     </div>
   );
 }
