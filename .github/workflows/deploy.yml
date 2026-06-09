@@ -17,7 +17,13 @@ jobs:
           script: |
             cd ~/pomodoro-app
             git pull origin main
-            docker build -t pomodoro-timer .
+            # Instalamos dependencias por si acaso
+            npm install
+            # Compilamos de nuevo (esto genera el nuevo index.html en la carpeta dist)
+            npm run build
+            # Reconstruimos la imagen de Docker
+            docker build --no-cache -t pomodoro-timer .
             docker stop pomodoro-timer-container || true
             docker rm pomodoro-timer-container || true
+            # Ejecutamos el nuevo contenedor
             docker run -d --name pomodoro-timer-container --network web-network -p 8081:80 pomodoro-timer
