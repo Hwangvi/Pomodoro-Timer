@@ -1,0 +1,23 @@
+name: Deploy Automatico
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Desplegar en el Servidor via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/pomodoro-app
+            git pull origin main
+            docker build -t pomodoro-timer .
+            docker stop pomodoro-timer-container || true
+            docker rm pomodoro-timer-container || true
+            docker run -d --name pomodoro-timer-container --network web-network -p 8081:80 pomodoro-timer
