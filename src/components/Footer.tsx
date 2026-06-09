@@ -1,22 +1,16 @@
-import type { Theme } from '../App';
+import { THEMES, type ThemeKey } from '../constants';
 
 interface FooterProps {
-  theme: Theme;
+  theme: ThemeKey;
 }
 
 export const Footer = ({ theme }: FooterProps) => {
-  const textColor = theme === 'DARK' ? 'text-gray-500' : 'text-gray-400';
+  const config = THEMES[theme];
 
   return (
-    // Mantenemos el footer centrado
-    <footer className="w-full text-center py-8 mt-auto">
-      {/* 
-         - 'inline-block': hace que el párrafo solo ocupe el ancho de su contenido.
-         - '-ml-12' (o el valor que prefieras): desplaza el bloque hacia la izquierda.
-         - Ajusta el número (ml-4, ml-8, ml-12) para moverlo más o menos.
-      */}
-      <p className={`font-['Press_Start_2P'] text-sm inline-block -ml-12 ${textColor}`}>
-        💕 Desarrollado con todo mi amor por JuanVi 💕
+    <footer className={`w-full text-center py-8 mt-auto border-t ${config.border} ${config.bg}`}>
+      <p className={`text-sm font-medium ${config.text} opacity-70`}>
+        © {new Date().getFullYear()} Pomodoro Timer | Desarrollado por HwangVi con React, Vite & Tailwindcss
       </p>
     </footer>
   );
